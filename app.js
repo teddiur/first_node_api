@@ -3,8 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const app = express();
+const config = require('./config/config');
 
-const db_url = `mongodb+srv://teddiur:${process.env.MONGODB_PASSWORD}@cluster0.lge5r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const db_url = config.db_url;
 const options = {
   reconnectTries: Number.MAX_VALUE,
   reconnectInterval: 500,
