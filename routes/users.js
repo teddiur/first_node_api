@@ -2,7 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Users = require('../models/users');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+const createUserToken = userId => {
+  return jwt.sign({ id: userId }, process.env.JWT_PASSWORD, {
+    expiresIn: '7d',
+  });
+};
 router.get('/', async (req, res) => {
   try {
     const users = await Users.find({});
@@ -20,9 +26,10 @@ router.post('/create', async (req, res) => {
   try {
     if (await Users.findOne({ email }))
       return res.send({ error: 'Usuário já cadastrado' });
+
     const user = await Users.create({ email, password });
     user.password = undefined;
-    return res.send(user);
+    return res.send({ user, token: createUserToken(user.id) });
   } catch (err) {
     return res.send({ error: 'Erro ao buscar o usuário' });
   }
@@ -41,7 +48,7 @@ router.post('/auth', async (req, res) => {
     if (!pass_ok) return res.send({ error: 'Erro ao autenticar o usuário' });
 
     user.password = undefined;
-    return res.send(user);
+    return res.send({ user, token: createUserToken(user.id) });
   } catch (err) {
     return res.send({ error: `Erro ao buscar o usuário! ${err}` });
   }
